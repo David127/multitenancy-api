@@ -1,19 +1,24 @@
 <?php
 
-use GuzzleHttp\Psr7\Request;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-foreach (config('tenancy.central_domains') as $domain) {
-  Route::domain($domain)->group(function () {
-    // your actual routes
-    Route::get('/', function () {
-      return 'hola mundo';
-    });
 
-    Route::post('/tenant/{id}', function ($id) {
-      return \App\Models\User::all();
+Route::get('/', function () {
+    return 'hola mundo desde el app Root Tenant';
+});
+
+Route::post('crear-tenant', function(Request $request){
+    $nombre = $request->nombre;
+    $tenant = App\Models\Tenant::create(['id' => $nombre]);
+    $tenant->domains()->create(['domain' => $nombre . '.localhost']);
+    $tenant->run(function() {
+        App\Models\User::factory()->times(5)->create();
     });
-  });
-}
+    return [
+        'message' => 'success!!!',
+        'tenant' => $nombre
+    ];
+});
 
 

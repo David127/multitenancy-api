@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Tenant\UserController;
+use App\Models\Tenant;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
+use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 /*
@@ -20,11 +23,11 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 Route::middleware([
     'api',
-    InitializeTenancyByDomain::class,
-    PreventAccessFromCentralDomains::class,
-])->group(function () {
-    Route::get('/', function () {
-        dd(\App\Models\User::all());
-        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
-    });
+    // InitializeTenancyByDomain::class,
+    InitializeTenancyByPath::class,
+    // PreventAccessFromCentralDomains::class,
+])->prefix('{tenant}')->group(function () {
+    Route::get('usuarios', [UserController::class, 'index']);
+
+    Route::get('usuarios/{user}', [UserController::class, 'show']);
 });
